@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const path = require('path')
+const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,11 +12,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'img.pokemondb.net',
-        port: '',
+        hostname: '**', // Allows images from any hostname
       },
     ],
   },
 }
 
-module.exports = nextConfig
+module.exports = nextConfig;

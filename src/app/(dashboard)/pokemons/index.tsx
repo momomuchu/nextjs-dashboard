@@ -1,21 +1,25 @@
 'use client'
 
-import { Button, Card } from 'react-bootstrap'
-import React from 'react'
-import { newResource, ResourceCollection } from '@/models/resource'
-import { Pokemon } from '@/models/pokemon'
-import Pagination from '@/components/Pagination/Pagination'
-import { useRouter } from 'next/navigation'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import useSWR from 'swr'
-import PokemonList from '@/components/Page/Pokemon/PokemonList'
-import Cookies from 'js-cookie'
-import useDictionary from '@/locales/dictionary-hook'
+import { Button, Card } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { ResourceCollection, newResource } from '@/models/resource';
+import Pagination from '@/components/Pagination/Pagination';
+import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import PersonList from '@/components/Page/Pokemon/PokemonList';
+import useDictionary from '@/locales/dictionary-hook';
+
+const predefinedPeople = [
+  { id: 1, name: 'John Doe', benevolent_missions: 5, paid_missions: 3, total_missions: 8, image_url: 'https://via.placeholder.com/70' },
+  { id: 2, name: 'Jane Smith', benevolent_missions: 8, paid_missions: 2, total_missions: 10, image_url: 'https://via.placeholder.com/70' },
+  { id: 3, name: 'Alice Johnson', benevolent_missions: 7, paid_missions: 5, total_missions: 12, image_url: 'https://via.placeholder.com/70' },
+  // Add more people as needed
+];
 
 type Props = {
   props: {
-    pokemonResource: ResourceCollection<Pokemon>;
+    personResource: ResourceCollection<Person>;
     page: number;
     perPage: number;
     sort: string;
@@ -26,52 +30,35 @@ type Props = {
 export default function Index(props: Props) {
   const {
     props: {
-      pokemonResource: pokemonResourceFallback,
+      personResource: personResourceFallback,
       page,
       perPage,
       sort,
       order,
     },
-  } = props
+  } = props;
 
-  const router = useRouter()
-  const dict = useDictionary()
+  const [personResource, setPersonResource] = useState<ResourceCollection<Person>>(personResourceFallback);
+  const router = useRouter();
+  const dict = useDictionary();
 
-  const pokemonListURL = `${process.env.NEXT_PUBLIC_POKEMON_LIST_API_BASE_URL}${Cookies.get('locale')}pokemons` || ''
-  const url = new URL(pokemonListURL)
-  url.searchParams.set('_page', page.toString())
-  url.searchParams.set('_limit', perPage.toString())
-  url.searchParams.set('_sort', sort)
-  url.searchParams.set('_order', order)
-
-  const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then(async (res) => {
-    if (res.ok) {
-      const pokemons: Pokemon[] = await res.json()
-      const total = Number(res.headers.get('x-total-count')) ?? 0
-      return newResource(pokemons, total, page, perPage)
-    }
-
-    return pokemonResourceFallback
-  })
-
-  const { data: pokemonResource } = useSWR(url.toString(), fetcher, {
-    fallbackData: pokemonResourceFallback,
-  })
+  useEffect(() => {
+    // Simulate fetching data from an API
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const paginatedPeople = predefinedPeople.slice(start, end);
+    const total = predefinedPeople.length;
+    setPersonResource(newResource(paginatedPeople, total, page, perPage));
+  }, [page, perPage, sort, order]);
 
   return (
     <Card>
-      <Card.Header>{dict.pokemons.title}</Card.Header>
+      <Card.Header>{dict?.people?.title ?? 'People List'}</Card.Header>
       <Card.Body>
-        <div className="mb-3 text-end">
-          <Button variant="success" onClick={() => router.push('/pokemons/create')}>
-            <FontAwesomeIcon icon={faPlus} fixedWidth />
-            {dict.pokemons.add_new}
-          </Button>
-        </div>
-        <Pagination meta={pokemonResource.meta} />
-        <PokemonList pokemons={pokemonResource.data} />
-        <Pagination meta={pokemonResource.meta} />
+        <Pagination meta={personResource.meta} />
+        <PersonList people={personResource.data} />
+        <Pagination meta={personResource.meta} />
       </Card.Body>
     </Card>
-  )
+  );
 }
