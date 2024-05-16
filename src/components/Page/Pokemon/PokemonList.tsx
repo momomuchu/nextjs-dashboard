@@ -8,21 +8,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import THSort from '@/components/TableSort/THSort';
 import useDictionary from '@/locales/dictionary-hook';
+import { generatePeople } from './data';
 
 type Props = {
   people: any[];
 }
 
-const predefinedPeople = [
-  { id: 1, name: 'John Doe', benevolent_missions: 5, paid_missions: 3, total_missions: 8, image_url: 'https://via.placeholder.com/70' },
-  { id: 2, name: 'Jane Smith', benevolent_missions: 8, paid_missions: 2, total_missions: 10, image_url: 'https://via.placeholder.com/70' },
-  { id: 3, name: 'Alice Johnson', benevolent_missions: 7, paid_missions: 5, total_missions: 12, image_url: 'https://via.placeholder.com/70' },
-  // Add more people as needed
-];
+
 export default function PersonList(props: Props) {
   const { people } = props;
   const dict = useDictionary();
   console.log(dict)
+  const predefinedPeople = generatePeople();
 
   return (
     <Table responsive bordered hover>
