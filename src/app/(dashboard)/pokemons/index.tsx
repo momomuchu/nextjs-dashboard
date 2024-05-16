@@ -19,7 +19,7 @@ const predefinedPeople = [
 
 type Props = {
   props: {
-    personResource: ResourceCollection<Person>;
+    personResource: ResourceCollection<any>;
     page: number;
     perPage: number;
     sort: string;
